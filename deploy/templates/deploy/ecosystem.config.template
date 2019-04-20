@@ -1,0 +1,21 @@
+module.exports = {
+  apps : [
+    {
+      name   : '{{ task_prefix }}{{ version }}',
+      script : '{{ venv_path }}/bin/gunicorn',
+      interpreter: '{{ venv_path }}/bin/python',
+      args : [
+              '--workers', '3',
+              '--timeout', '600',
+              '--bind', '{{ socket_path }}',
+              '{{ app_name }}.wsgi:application'
+      ],
+      cwd : '{{ deploy_path }}',
+      env: {
+        PYTHONPATH: '{{ deploy_path }}/{{ app_name }}',
+        PATH: '{{ deploy_path }}:{{ venv_path }}/bin/:{{ deploy_path }}/{{ app_name }}/'
+      },
+      "exec_mode": "fork"
+    }
+  ]
+};

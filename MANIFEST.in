@@ -1,0 +1,4 @@
+include LICENSE
+include README.md
+include deploy/templates/deploy/ecosystem.config.template
+include deploy/templates/deploy/nginx.conf.template
