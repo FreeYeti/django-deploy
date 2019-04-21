@@ -118,6 +118,9 @@ class Command(BaseCommand):
         deleted = self.clear()
         print(Fore.GREEN + 'deleted versions: {}'.format(str(deleted)))
 
+        # show processes
+        self.conn.run('pm2 list --sort name:desc')
+
     def create_conn(self, host):
         self.conn = Connection(host, connect_kwargs={
             'auth_timeout': 3000,
@@ -239,7 +242,7 @@ class Command(BaseCommand):
             try:
                 days = (datetime.datetime.now() - datetime.datetime.strptime(file, "%Y%m%d-%H%M%S")).days
                 if days > 3 and (files_count - deleted) > 6:
-                    self.conn.run('pm2 delete {}'.format(self.TASK_PREFIX + file), hide=True)
+                    self.conn.run('pm2 delete {}'.format(self.TASK_PREFIX + file), hide=True, warn=True)
                     self.conn.run('rm -rf {}'.format(os.path.join(self.HOME, file)))
                     self.conn.run('rm -rf {}'.format(os.path.join(self.STATIC_PATH, file)))
                     deleted += 1
@@ -252,13 +255,11 @@ class Command(BaseCommand):
                 try:
                     app.index(self.TASK_PREFIX)
                     deleted += 1
-                    self.conn.run('pm2 delete {}'.format(app[0]), hide=True)
+                    self.conn.run('pm2 delete {}'.format(app[0]), hide=True, warn=True)
                     self.conn.run('rm -rf {}'.format(os.path.join(self.HOME, app[0])))
                 except ValueError:
                     continue
             # m = re.match(r'{}(\d+)-(\d+)'.format(self.TASK_PREFIX), app[0])
             # '{}-{}'.format(m.group(1), m.group(2)
-
-        self.conn.run('pm2 list --sort name:desc')
 
         return deleted
