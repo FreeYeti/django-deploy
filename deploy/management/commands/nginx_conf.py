@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def generate_by_template(app, socket, static):
-        template = 'service/nginx.conf.template'
+        template = 'deploy/nginx.conf.template'
         variables = {
             "app_name": app,
             "unix_socket": socket,

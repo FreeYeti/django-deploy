@@ -16,6 +16,7 @@ Features:
 ## Requirements on server
 
 * Nginx
+* Anaconda
 * Nodejs
 * PM2
 

@@ -151,6 +151,7 @@ class Command(BaseCommand):
         # 清华源：https://pypi.tuna.tsinghua.edu.cn/simple
         # 豆瓣源：http://pypi.douban.com/simple/ 需搭配 --trusted-host pypi.douban.com
         self.conn.run('cd {} && {} install'.format(self.deploy_path, self.pip_path) +
+                      ' --no-cache-dir' +
                       ' -i https://pypi.tuna.tsinghua.edu.cn/simple' +
                       ' -r requirements.txt')
         # conn.run('cd {} && {} install'.format(deploy_path, pip_path) +

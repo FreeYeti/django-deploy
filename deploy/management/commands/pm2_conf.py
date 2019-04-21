@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def generate_by_template(task_prefix, version, venv_path, socket_path, app_name, home):
-        template = 'service/ecosystem.config.template'
+        template = 'deploy/ecosystem.config.template'
         variables = {
             "task_prefix": task_prefix,
             "version": version,
