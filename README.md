@@ -22,6 +22,14 @@ Features:
 
 ## Quick start
 
+* install
+
+```bash
+pip install django-deploy-kit
+```
+
+* use
+
 1. Add "deploy" to your INSTALLED_APPS setting like this:
 
     ```python
@@ -86,7 +94,78 @@ Features:
     content of `ecosystem.config.template`
     
     ```bash
-    ...
+    module.exports = {
+        apps : [
+            {
+            name   : '{{ task_prefix }}{{ version }}',
+            script : '{{ venv_path }}/bin/gunicorn',
+            interpreter: '{{ venv_path }}/bin/python',
+            args : [
+                    '--workers', '3',
+                    '--timeout', '600',
+                    '--bind', '{{ socket_path }}',
+                    '{{ app_name }}.wsgi:application'
+            ],
+            cwd : '{{ deploy_path }}',
+            env: {
+                PYTHONPATH: '{{ deploy_path }}/{{ app_name }}',
+                PATH: '{{ deploy_path }}:{{ venv_path }}/bin/:{{ deploy_path }}/{{ app_name }}/'
+            },
+            "exec_mode": "fork"
+            }
+        ]
+    };
     ```
     
     content of `nginx.conf.template`
+
+    ```bash
+    upstream {{ app_name }}-website {
+        server 127.0.0.1;
+    }
+
+    server {
+        listen 80;
+        client_max_body_size 1G;
+        gzip on;
+
+        access_log /var/log/nginx/access.log;
+        error_log /var/log/nginx/error.log;
+
+        location /static {
+            alias {{ static_path }};
+            mp4;
+            mp4_buffer_size       1m;
+            mp4_max_buffer_size   5m;
+        }
+
+        location / {
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_pass  http://{{ unix_socket }};
+
+            proxy_redirect     off;
+            proxy_set_header   Host             $host;
+            proxy_set_header   X-Real-IP        $remote_addr;
+            proxy_set_header   X-Forwarded-For  $remote_addr;
+            proxy_set_header   X-Forwarded-Host $remote_addr;
+            proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+            proxy_buffering            off;
+            proxy_max_temp_file_size   0;
+            proxy_connect_timeout      600s;
+            proxy_send_timeout         600s;
+            proxy_read_timeout         600s;
+            proxy_buffer_size          4k;
+            proxy_buffers              4 32k;
+            proxy_busy_buffers_size    64k;
+            proxy_temp_file_write_size 64k;
+        }
+
+        error_page 404 /404.html;
+
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+            root /usr/share/nginx/html;
+        }
+    }
+    ```
