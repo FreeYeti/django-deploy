@@ -148,17 +148,14 @@ class Command(BaseCommand):
     def backend(self):
         self.conn.run('{} create -y --prefix {} python=3.6'.format(self.conda_bin, self.venv_path))
         # conda create -y --prefix .... python=3.6
-        self.conn.run('ping -c 4 pypi.tuna.tsinghua.edu.cn')  # test network
 
         # 由于下载pip包可能出现中断，可用多种源
         # 清华源：https://pypi.tuna.tsinghua.edu.cn/simple
         # 豆瓣源：http://pypi.douban.com/simple/ 需搭配 --trusted-host pypi.douban.com
+        # 墙内可能要用到 -i https://pypi.tuna.tsinghua.edu.cn/simple 参数
+        # 如果每次都想更新软件包，使用： --no-cache-dir
         self.conn.run('cd {} && {} install'.format(self.deploy_path, self.pip_path) +
-                      ' --no-cache-dir' +
-                      ' -i https://pypi.tuna.tsinghua.edu.cn/simple' +
                       ' -r requirements.txt')
-        # conn.run('cd {} && {} install'.format(deploy_path, pip_path) +
-        #          ' -r requirements.txt')
 
     def migrations(self):
         # 进入固定部署的目录，执行迁移命令
